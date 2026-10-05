@@ -277,16 +277,18 @@ const traceYMap = {
 let lastUpGlyph = 0;
 let lastDownGlyph = 0;
 
+const asset = (path) =>
+  `${import.meta.env.BASE_URL}${path}`;
 const upGlyphs = [
-  "/icons/n_1.svg",
-  "/icons/n_2.svg",
-  "/icons/n_7.svg",
+  asset("icons/n_1.svg"),
+  asset("icons/n_2.svg"),
+  asset("icons/n_7.svg"),
 ];
 
 const downGlyphs = [
-  "/icons/n_3.svg",
-  "/icons/n_6.svg",
-  "/icons/n_8.svg",
+  asset("icons/n_3.svg"),
+  asset("icons/n_6.svg"),
+  asset("icons/n_8.svg"),
 ];
 
 function getTraceY(noteName) {
