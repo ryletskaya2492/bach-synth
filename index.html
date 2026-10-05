@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Иоганн Себастьян Бах</title>
+
+    <link rel="stylesheet" href="/src/styles/main.css" />
+</head>
+
+<body>
+
+    <main class="app">
+
+        <!-- HEADER -->
+
+        <header class="header">
+        
+            <h1 class="logo">
+                Иоганн Себастьян Бах
+            </h1>
+        
+            <p class="header-description">
+                Веб-синтезатор, посвящённый полифонии Иоганна
+                Себастьяна Баха. Два голоса звучат независимо<br>
+                и образуют единое музыкальное движение.
+            </p>
+        
+        </header>
+
+
+        <!-- CANTUS -->
+
+        <section class="voice-panel voice-panel-left" data-voice="cantus">
+            <img class="panel-shape" src="/icons/left_right.svg" alt="" />
+
+            <div class="panel-content">
+
+                <h2 class="panel-title">
+                    Cantus
+                </h2>
+
+                <div class="wave-buttons">
+                    <button class="active">SINE</button>
+                    <button>SQUARE</button>
+                    <button>TRIANGLE</button>
+                </div>
+
+                <div class="controls-block envelope">
+
+                    <div class="control-row">
+                        <span>ATTACK</span>
+
+                        <input class="slider slider-clef" type="range" min="0" max="100" value="20" />
+                    </div>
+
+                    <div class="control-row">
+                        <span>DECAY</span>
+
+                        <input class="slider slider-note-2" type="range" min="0" max="100" value="55" />
+                    </div>
+
+                    <div class="control-row">
+                        <span>SUSTAIN</span>
+
+                        <input class="slider slider-note-7" type="range" min="0" max="100" value="55" />
+                    </div>
+
+                    <div class="control-row">
+                        <span>RELEASE</span>
+
+                        <input class="slider slider-note-3" type="range" min="0" max="100" value="45" />
+                    </div>
+
+                </div>
+
+                <div class="controls-block filter">
+
+                    <div class="control-row">
+                        <span>FREQUENCY</span>
+
+                        <input class="slider slider-note-6" type="range" min="0" max="100" value="45" />
+                    </div>
+
+                    <div class="control-row">
+                        <span>RESONANCE</span>
+
+                        <input class="slider slider-note-8" type="range" min="0" max="100" value="15" />
+                    </div>
+
+                </div>
+
+                <div class="controls-block effects">
+
+                    <div class="effects-grid">
+                        <button>DISTORTION</button>
+                        <button class="active">REVERB</button>
+                        <button>CHORUS</button>
+                        <button>DELAY</button>
+                    </div>
+
+                    <div class="control-row">
+                        <span>AMOUNT</span>
+
+                        <input class="slider slider-bass" type="range" min="0" max="100" value="25" />
+                    </div>
+
+                    <div class="control-row">
+                        <span>VOLUME</span>
+
+                        <input class="slider slider-note-5" type="range" min="0" max="100" value="65" />
+                    </div>
+
+                    <div class="control-row">
+                        <span>PAN</span>
+
+                        <input class="slider slider-note-1" type="range" min="0" max="100" value="40" />
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- CENTER -->
+
+        <section class="center-panel">
+
+            <img class="panel-shape" src="/icons/centre.svg" alt="" />
+
+            <div class="center-content" id="bach-scroll">
+
+                <div class="bach-cover" id="bachCover">
+                    <img src="/icons/bach.png" alt="Иоганн Себастьян Бах" />
+                </div>
+
+                <div class="fact-stage">
+
+                    <div class="fact-card" id="factCard">
+                        <div class="fact-index" id="factIndex"></div>
+
+                        <p class="fact-text" id="factText"></p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- COUNTERPOINT -->
+
+        <section class="voice-panel voice-panel-right" data-voice="counterpoint">
+            <img class="panel-shape" src="/icons/left_right.svg" alt="" />
+
+            <div class="panel-content">
+
+                <h2 class="panel-title">
+                    Counterpoint
+                </h2>
+
+                <div class="wave-buttons">
+                    <button>SINE</button>
+                    <button>SQUARE</button>
+                    <button class="active">TRIANGLE</button>
+                </div>
+
+                <div class="controls-block envelope">
+
+                    <div class="control-row">
+                        <span>ATTACK</span>
+
+                        <input class="slider slider-clef" type="range" min="0" max="100" value="12" />
+                    </div>
+
+                    <div class="control-row">
+                        <span>DECAY</span>
+
+                        <input class="slider slider-note-6" type="range" min="0" max="100" value="45" />
+                    </div>
+
+                    <div class="control-row">
+                        <span>SUSTAIN</span>
+
+                        <input class="slider slider-note-7" type="range" min="0" max="100" value="45" />
+                    </div>
+
+                    <div class="control-row">
+                        <span>RELEASE</span>
+
+                        <input class="slider slider-note-8" type="range" min="0" max="100" value="35" />
+                    </div>
+
+                </div>
+
+                <div class="controls-block filter">
+
+                    <div class="control-row">
+                        <span>FREQUENCY</span>
+
+                        <input class="slider slider-note-2" type="range" min="0" max="100" value="40" />
+                    </div>
+
+                    <div class="control-row">
+                        <span>RESONANCE</span>
+
+                        <input class="slider slider-note-3" type="range" min="0" max="100" value="20" />
+                    </div>
+
+                </div>
+
+                <div class="controls-block effects">
+
+                    <div class="effects-grid">
+                        <button>DISTORTION</button>
+                        <button>REVERB</button>
+                        <button class="active">CHORUS</button>
+                        <button>DELAY</button>
+                    </div>
+
+                    <div class="control-row">
+                        <span>AMOUNT</span>
+
+                        <input class="slider slider-bass" type="range" min="0" max="100" value="25" />
+                    </div>
+
+                    <div class="control-row">
+                        <span>VOLUME</span>
+
+                        <input class="slider slider-note-5" type="range" min="0" max="100" value="60" />
+                    </div>
+
+                    <div class="control-row">
+                        <span>PAN</span>
+
+                        <input class="slider slider-note-7" type="range" min="0" max="100" value="60" />
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- BOTTOM -->
+
+        <section class="bottom-panel">
+
+            <img class="panel-shape" src="/icons/bot.svg" alt="" />
+
+            <div class="conductor">
+
+                <h2 class="bottom-title">
+                    Conductor
+                </h2>
+
+                <div class="transport">
+                    <button>PLAY</button>
+                    <button>STOP</button>
+                    <button>MUTE</button>
+                </div>
+
+            </div>
+
+            <div class="master-controls">
+
+                <div class="master-row">
+                    <span>TEMPO</span>
+
+                    <input class="slider slider-note-2" type="range" min="0" max="100" value="30" />
+                </div>
+
+                <div class="master-row">
+                    <span>BALANCE</span>
+
+                    <input class="slider slider-note-7" type="range" min="0" max="100" value="50" />
+                </div>
+
+                <div class="master-row">
+                    <span>MASTER</span>
+
+                    <input class="slider slider-note-8" type="range" min="0" max="100" value="70" />
+                </div>
+
+            </div>
+
+            <div class="trace">
+
+                <h2 class="bottom-title">
+                    Trace
+                </h2>
+
+                <div class="staff">
+
+                    <div class="staff-lines">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+
+                    <img class="trace-clef" src="/icons/skrip.svg" alt="" />
+
+                    <div class="trace-live-layer" id="traceLiveLayer"></div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+
+</body>
+
+</html>
