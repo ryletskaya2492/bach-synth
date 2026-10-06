@@ -1,14 +1,25 @@
 import * as Tone from "tone";
 
-import { createCantus } from "./audio/cantus.js";
-import { createCounterpoint } from "./audio/counterpoint.js";
-import { createTransport } from "./audio/transport.js";
+import {
+  createCantus,
+} from "./audio/cantus.js";
+
+import {
+  createCounterpoint,
+} from "./audio/counterpoint.js";
+
+import {
+  createTransport,
+} from "./audio/transport.js";
 
 
 /* AUDIO */
 
-const cantus = createCantus();
-const counterpoint = createCounterpoint();
+const cantus =
+  createCantus();
+
+const counterpoint =
+  createCounterpoint();
 
 const master =
   new Tone.Volume(-5)
@@ -17,268 +28,413 @@ const master =
 cantus.channel.connect(master);
 counterpoint.channel.connect(master);
 
-let muted = false;
-let isPlaying = false;
+let masterMuted = false;
 
 
 /* ELEMENTS */
-
-const transportButtons =
-  document.querySelectorAll(
-    ".transport button"
-  );
-
-const playButton = transportButtons[0];
-const stopButton = transportButtons[1];
-const muteButton = transportButtons[2];
-
-const bachCover =
-  document.querySelector(
-    "#bachCover"
-  );
-
-const bachScroll =
-  document.querySelector(
-    "#bach-scroll"
-  );
-
-const factCard =
-  document.querySelector(
-    "#factCard"
-  );
-
-const factIndex =
-  document.querySelector(
-    "#factIndex"
-  );
-
-const factText =
-  document.querySelector(
-    "#factText"
-  );
 
 const traceLiveLayer =
   document.querySelector(
     "#traceLiveLayer"
   );
 
-
-/* FACTS */
-
-const bachFacts = [
-  "В\u00A01717 году Баха посадили под\u00A0арест почти на\u00A0месяц за\u00A0попытку уйти со\u00A0службы без\u00A0разрешения.",
-
-  "В\u00A0молодости Бах отправился пешком в\u00A0Любек, чтобы услышать знаменитого органиста Дитриха Букстехуде.",
-
-  "Бах написал «Кофейную кантату» — произведение, связанное с\u00A0лейпцигской кофейной культурой и\u00A0концертами в\u00A0Café Zimmermann.",
-
-  "За\u00A0первые четыре года работы в\u00A0Лейпциге Бах создал около 150 кантат.",
-
-  "При жизни Бах был особенно знаменит как органист, клавишник и\u00A0импровизатор.",
-
-  "У\u00A0Баха было 20 детей, и\u00A0несколько его сыновей сами стали известными композиторами.",
-
-  "В\u00A01720 году Бах вернулся из\u00A0поездки и\u00A0узнал, что его жена Мария Барбара уже умерла и\u00A0была похоронена.",
-
-  "В\u00A01730 году Бах отправил городскому совету длинную жалобу из-за\u00A0нехватки музыкантов и\u00A0плохих условий для\u00A0исполнения музыки.",
-
-  "Незадолго до\u00A0смерти Бах перенёс операцию на\u00A0глазах, после которой его здоровье резко ухудшилось.",
-
-  "Неизвестные произведения Баха находят даже сегодня: в\u00A02005 году исследователи обнаружили ранее неизвестную арию BWV\u00A01127.",
-];
-
-let currentFact = 0;
-let factsStarted = false;
-let factAnimating = false;
-
-function renderFact(index) {
-  if (!factIndex || !factText) {
-    return;
-  }
-
-  factIndex.textContent =
-    `${String(index + 1).padStart(2, "0")} / ${String(
-      bachFacts.length
-    ).padStart(2, "0")}`;
-
-  factText.textContent =
-    bachFacts[index];
-}
-
-function startFacts() {
-  if (!factCard) {
-    return;
-  }
-
-  factsStarted = true;
-  currentFact = 0;
-
-  renderFact(currentFact);
-
-  requestAnimationFrame(() => {
-    factCard.classList.add(
-      "is-visible"
-    );
-  });
-}
-
-function stopFacts() {
-  factsStarted = false;
-  factAnimating = false;
-
-  if (!factCard) {
-    return;
-  }
-
-  factCard.classList.remove(
-    "is-visible",
-    "is-exit-up",
-    "is-exit-down",
-    "from-up",
-    "from-down"
+const circleField =
+  document.querySelector(
+    "#circleField"
   );
 
-  setTimeout(() => {
-    if (factsStarted) {
-      return;
-    }
+const conductorButtons =
+  document.querySelectorAll(
+    ".transport button"
+  );
 
-    factIndex.textContent = "";
-    factText.textContent = "";
-  }, 500);
+const conductorPlay =
+  conductorButtons[0];
+
+const conductorStop =
+  conductorButtons[1];
+
+const conductorMute =
+  conductorButtons[2];
+
+
+/* CENTER VISUAL */
+
+const visualCircles = [];
+
+const circleCount = 12;
+
+let visualPlaying = false;
+let visualTempo = 82;
+
+
+function random(
+  min,
+  max
+) {
+  return (
+    min +
+    Math.random() *
+      (max - min)
+  );
 }
 
-function changeFact(direction) {
+
+function createCircleField() {
+  if (!circleField) {
+    return;
+  }
+
+  for (
+    let i = 0;
+    i < circleCount;
+    i += 1
+  ) {
+    const element =
+      document.createElement(
+        "div"
+      );
+
+    element.className =
+      "music-circle";
+
+    circleField.appendChild(
+      element
+    );
+
+    visualCircles.push({
+      element,
+
+      x: random(
+        50,
+        720
+      ),
+
+      y: random(
+        40,
+        540
+      ),
+
+      vx: random(
+        -0.12,
+        0.12
+      ),
+
+      vy: random(
+        -0.12,
+        0.12
+      ),
+
+      phase:
+        Math.random() *
+        Math.PI *
+        2,
+
+      wobble:
+        random(
+          0.004,
+          0.012
+        ),
+    });
+  }
+}
+
+
+function durationEnergy(
+  duration
+) {
+  switch (duration) {
+    case "16n":
+      return 2.6;
+
+    case "8n":
+      return 1.8;
+
+    case "8n.":
+      return 1.35;
+
+    case "4n":
+      return 0.9;
+
+    case "2n":
+      return 0.6;
+
+    default:
+      return 1;
+  }
+}
+
+
+function noteHeight(
+  note
+) {
+  const midi =
+    Tone.Frequency(
+      note
+    ).toMidi();
+
+  const low =
+    Tone.Frequency(
+      "C2"
+    ).toMidi();
+
+  const high =
+    Tone.Frequency(
+      "A5"
+    ).toMidi();
+
+  const value =
+    (
+      midi -
+      low
+    ) /
+    (
+      high -
+      low
+    );
+
+  return Math.max(
+    0,
+    Math.min(
+      1,
+      value
+    )
+  );
+}
+
+
+function reactToNote({
+  voice,
+  note,
+  duration,
+}) {
   if (
-    !factsStarted ||
-    factAnimating ||
-    !factCard
+    !visualCircles.length
   ) {
     return;
   }
 
-  factAnimating = true;
+  const tempoEnergy =
+    Math.pow(
+      visualTempo / 82,
+      1.2
+    );
 
-  factCard.classList.remove(
-    "is-visible"
-  );
+  const energy =
+    durationEnergy(
+      duration
+    ) *
+    tempoEnergy;
 
-  factCard.classList.add(
-    direction > 0
-      ? "is-exit-up"
-      : "is-exit-down"
-  );
+  const pitch =
+    noteHeight(
+      note
+    );
 
-  currentFact =
-    direction > 0
-      ? (currentFact + 1) %
-        bachFacts.length
-      : (
-          currentFact -
-          1 +
-          bachFacts.length
+  const amount =
+    voice === "cantus"
+      ? 4
+      : 3;
+
+  const start =
+    Math.floor(
+      Math.random() *
+      visualCircles.length
+    );
+
+  for (
+    let i = 0;
+    i < amount;
+    i += 1
+  ) {
+    const circle =
+      visualCircles[
+        (
+          start + i
         ) %
-        bachFacts.length;
+        visualCircles.length
+      ];
 
-  setTimeout(() => {
-    factCard.classList.remove(
-      "is-exit-up",
-      "is-exit-down"
-    );
+    const horizontal =
+      random(
+        0.4,
+        1
+      ) *
+      energy;
 
-    renderFact(currentFact);
+    const vertical =
+      (
+        0.5 - pitch
+      ) *
+      2.2 *
+      energy;
 
-    factCard.classList.add(
-      direction > 0
-        ? "from-down"
-        : "from-up"
-    );
+    if (
+      voice === "cantus"
+    ) {
+      circle.vx +=
+        horizontal;
 
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        factCard.classList.remove(
-          "from-down",
-          "from-up"
-        );
+      circle.vy +=
+        vertical -
+        0.3 *
+        energy;
+    } else {
+      circle.vx -=
+        horizontal *
+        0.75;
 
-        factCard.classList.add(
-          "is-visible"
-        );
-      });
-    });
-  }, 320);
-
-  setTimeout(() => {
-    factAnimating = false;
-  }, 850);
+      circle.vy +=
+        vertical +
+        0.3 *
+        energy;
+    }
+  }
 }
 
-bachScroll?.addEventListener(
-  "wheel",
-  (event) => {
-    event.preventDefault();
-    event.stopPropagation();
 
-    if (
-      !factsStarted ||
-      factAnimating
-    ) {
-      return;
-    }
-
-    if (
-      Math.abs(event.deltaY) <
-      12
-    ) {
-      return;
-    }
-
-    changeFact(
-      event.deltaY > 0
-        ? 1
-        : -1
-    );
-  },
-  {
-    passive: false,
+function animateCircles() {
+  if (!circleField) {
+    return;
   }
+
+  const width =
+    circleField.clientWidth;
+
+  const height =
+    circleField.clientHeight;
+
+  const tempoFactor =
+    Math.pow(
+      visualTempo / 82,
+      1.7
+    );
+
+  visualCircles.forEach(
+    (
+      circle,
+      index
+    ) => {
+      circle.phase +=
+        circle.wobble *
+        tempoFactor;
+
+      const driftX =
+        Math.sin(
+          circle.phase +
+          index
+        ) *
+        0.045;
+
+      const driftY =
+        Math.cos(
+          circle.phase *
+            0.8 +
+          index
+        ) *
+        0.045;
+
+      if (visualPlaying) {
+        circle.vx +=
+          driftX *
+          tempoFactor;
+
+        circle.vy +=
+          driftY *
+          tempoFactor;
+      } else {
+        circle.vx +=
+          driftX *
+          0.15;
+
+        circle.vy +=
+          driftY *
+          0.15;
+      }
+
+      circle.vx *=
+        visualPlaying
+          ? 0.972
+          : 0.93;
+
+      circle.vy *=
+        visualPlaying
+          ? 0.972
+          : 0.93;
+
+      circle.x +=
+        circle.vx *
+        tempoFactor;
+
+      circle.y +=
+        circle.vy *
+        tempoFactor;
+
+      const margin =
+        35;
+
+      if (
+        circle.x <
+        -margin
+      ) {
+        circle.x =
+          width +
+          margin;
+      }
+
+      if (
+        circle.x >
+        width +
+          margin
+      ) {
+        circle.x =
+          -margin;
+      }
+
+      if (
+        circle.y <
+        -margin
+      ) {
+        circle.y =
+          height +
+          margin;
+      }
+
+      if (
+        circle.y >
+        height +
+          margin
+      ) {
+        circle.y =
+          -margin;
+      }
+
+      circle.element
+        .style
+        .transform =
+        `translate3d(${circle.x}px, ${circle.y}px, 0)`;
+    }
+  );
+
+  requestAnimationFrame(
+    animateCircles
+  );
+}
+
+
+createCircleField();
+
+requestAnimationFrame(
+  animateCircles
 );
 
 
 /* TRACE */
 
-const traceNotes = [];
+const asset =
+  (path) =>
+    `${import.meta.env.BASE_URL}${path}`;
 
-let traceIndex = 0;
-let traceResetting = false;
-
-const maxTraceNotes = 7;
-
-const traceYMap = {
-  C4: 68,
-  D4: 64,
-  E4: 59,
-  F4: 55,
-  "F#4": 55,
-  G4: 50,
-  A4: 46,
-  B4: 41,
-  C5: 37,
-  D5: 32,
-  E5: 28,
-  F5: 23,
-  "F#5": 23,
-  G5: 19,
-  A5: 14,
-  B5: 10,
-  C6: 5,
-};
-
-let lastUpGlyph = 0;
-let lastDownGlyph = 0;
-
-const asset = (path) =>
-  `${import.meta.env.BASE_URL}${path}`;
 const upGlyphs = [
   asset("icons/n_1.svg"),
   asset("icons/n_2.svg"),
@@ -291,36 +447,84 @@ const downGlyphs = [
   asset("icons/n_8.svg"),
 ];
 
-function getTraceY(noteName) {
+const traceNotes = [];
+
+const maxTraceNotes = 7;
+
+let traceIndex = 0;
+let traceResetting = false;
+let upIndex = 0;
+let downIndex = 0;
+
+
+function getTraceY(
+  noteName
+) {
+  const midi =
+    Tone.Frequency(
+      noteName
+    ).toMidi();
+
+  const low =
+    Tone.Frequency(
+      "C4"
+    ).toMidi();
+
+  const high =
+    Tone.Frequency(
+      "A5"
+    ).toMidi();
+
+  const clamped =
+    Math.max(
+      low,
+      Math.min(
+        high,
+        midi
+      )
+    );
+
+  const ratio =
+    (
+      clamped -
+      low
+    ) /
+    (
+      high -
+      low
+    );
+
   return (
-    traceYMap[noteName] ??
-    36
+    66 -
+    ratio * 62
   );
 }
 
-function getTraceNoteImage(y) {
-  if (y >= 54) {
-    const image =
+
+function getTraceGlyph(y) {
+  if (y >= 36) {
+    const glyph =
       upGlyphs[
-        lastUpGlyph %
+        upIndex %
         upGlyphs.length
       ];
 
-    lastUpGlyph++;
+    upIndex += 1;
 
-    return image;
+    return glyph;
   }
 
-  const image =
+  const glyph =
     downGlyphs[
-      lastDownGlyph %
+      downIndex %
       downGlyphs.length
     ];
 
-  lastDownGlyph++;
+  downIndex += 1;
 
-  return image;
+  return glyph;
 }
+
 
 function clearTrace(
   immediate = false
@@ -346,19 +550,22 @@ function clearTrace(
         "is-fading"
       );
 
-      setTimeout(() => {
-        note.remove();
-      }, 400);
+      setTimeout(
+        () => {
+          note.remove();
+        },
+        400
+      );
     }
   );
 }
+
 
 function addTraceNote(
   noteName
 ) {
   if (
     !traceLiveLayer ||
-    !isPlaying ||
     traceResetting
   ) {
     return;
@@ -372,28 +579,34 @@ function addTraceNote(
 
     clearTrace(false);
 
-    setTimeout(() => {
-      traceResetting = false;
+    setTimeout(
+      () => {
+        traceResetting = false;
 
-      addTraceNote(
-        noteName
-      );
-    }, 480);
+        addTraceNote(
+          noteName
+        );
+      },
+      480
+    );
 
     return;
   }
 
   const y =
-    getTraceY(noteName);
+    getTraceY(
+      noteName
+    );
 
-  const image =
-    getTraceNoteImage(y);
+  const glyph =
+    getTraceGlyph(y);
 
   const width =
     traceLiveLayer
       .clientWidth;
 
   const startX = 34;
+
   const endX =
     Math.max(
       60,
@@ -406,8 +619,7 @@ function addTraceNote(
       startX
     ) /
     (
-      maxTraceNotes -
-      1
+      maxTraceNotes - 1
     );
 
   const x =
@@ -423,8 +635,10 @@ function addTraceNote(
   element.className =
     "trace-live-note";
 
-  element.src = image;
-  element.alt = noteName;
+  element.src =
+    glyph;
+
+  element.alt = "";
 
   element.style.left =
     `${x}px`;
@@ -440,13 +654,15 @@ function addTraceNote(
     element
   );
 
-  requestAnimationFrame(() => {
-    element.classList.add(
-      "is-visible"
-    );
-  });
+  requestAnimationFrame(
+    () => {
+      element.classList.add(
+        "is-visible"
+      );
+    }
+  );
 
-  traceIndex++;
+  traceIndex += 1;
 }
 
 
@@ -456,7 +672,19 @@ const transport =
   createTransport(
     cantus,
     counterpoint,
-    null,
+
+    ({
+      voice,
+      note,
+      duration,
+    }) => {
+      reactToNote({
+        voice,
+        note,
+        duration,
+      });
+    },
+
     ({
       voice,
       note,
@@ -468,85 +696,284 @@ const transport =
         return;
       }
 
-      addTraceNote(note);
+      addTraceNote(
+        note
+      );
+    }
+  );
+
+
+/* VOICE TRANSPORT */
+
+document
+  .querySelectorAll(
+    ".voice-transport"
+  )
+  .forEach(
+    (controls) => {
+      const voiceName =
+        controls.dataset.transport;
+
+      const playButton =
+        controls.querySelector(
+          '[data-action="play"]'
+        );
+
+      const stopButton =
+        controls.querySelector(
+          '[data-action="stop"]'
+        );
+
+      const muteButton =
+        controls.querySelector(
+          '[data-action="mute"]'
+        );
+
+
+      playButton?.addEventListener(
+        "click",
+        async () => {
+          await Tone.start();
+
+          transport.playVoice(
+            voiceName
+          );
+
+          visualPlaying = true;
+
+          playButton.classList.add(
+            "active"
+          );
+
+          stopButton?.classList.remove(
+            "active"
+          );
+
+          muteButton?.classList.remove(
+            "is-muted"
+          );
+
+          if (muteButton) {
+            muteButton.textContent =
+              "MUTE";
+          }
+        }
+      );
+
+
+      stopButton?.addEventListener(
+        "click",
+        () => {
+          transport.stopVoice(
+            voiceName
+          );
+
+          visualPlaying =
+            transport.anyPlaying();
+
+          playButton?.classList.remove(
+            "active"
+          );
+
+          stopButton.classList.add(
+            "active"
+          );
+
+          muteButton?.classList.remove(
+            "is-muted"
+          );
+
+          if (muteButton) {
+            muteButton.textContent =
+              "MUTE";
+          }
+
+          if (
+            voiceName ===
+            "cantus"
+          ) {
+            clearTrace(
+              true
+            );
+          }
+        }
+      );
+
+
+      muteButton?.addEventListener(
+        "click",
+        () => {
+          if (
+            !transport.isVoicePlaying(
+              voiceName
+            )
+          ) {
+            return;
+          }
+
+          const muted =
+            !transport.isVoiceMuted(
+              voiceName
+            );
+
+          transport.muteVoice(
+            voiceName,
+            muted
+          );
+
+          muteButton.classList.toggle(
+            "is-muted",
+            muted
+          );
+
+          muteButton.textContent =
+            muted
+              ? "UNMUTE"
+              : "MUTE";
+        }
+      );
     }
   );
 
 
 /* CONDUCTOR */
 
-playButton?.addEventListener(
+conductorPlay?.addEventListener(
   "click",
   async () => {
     await Tone.start();
 
-    if (isPlaying) {
-      return;
-    }
+    transport.playAll();
 
-    isPlaying = true;
+    visualPlaying = true;
 
-    clearTrace(true);
+    document
+      .querySelectorAll(
+        ".voice-transport"
+      )
+      .forEach(
+        (controls) => {
+          const play =
+            controls.querySelector(
+              '[data-action="play"]'
+            );
 
-    bachCover?.classList.add(
-      "is-hidden"
-    );
+          const stop =
+            controls.querySelector(
+              '[data-action="stop"]'
+            );
 
-    transport.start();
+          const mute =
+            controls.querySelector(
+              '[data-action="mute"]'
+            );
 
-    playButton.classList.add(
+          play?.classList.add(
+            "active"
+          );
+
+          stop?.classList.remove(
+            "active"
+          );
+
+          mute?.classList.remove(
+            "is-muted"
+          );
+
+          if (mute) {
+            mute.textContent =
+              "MUTE";
+          }
+        }
+      );
+
+    conductorPlay.classList.add(
       "active"
     );
 
-    stopButton?.classList.remove(
+    conductorStop?.classList.remove(
       "active"
     );
-
-    startFacts();
   }
 );
 
-stopButton?.addEventListener(
+
+conductorStop?.addEventListener(
   "click",
   () => {
-    isPlaying = false;
+    transport.stopAll();
 
-    transport.stop();
+    visualPlaying = false;
+
+    document
+      .querySelectorAll(
+        ".voice-transport"
+      )
+      .forEach(
+        (controls) => {
+          const play =
+            controls.querySelector(
+              '[data-action="play"]'
+            );
+
+          const stop =
+            controls.querySelector(
+              '[data-action="stop"]'
+            );
+
+          const mute =
+            controls.querySelector(
+              '[data-action="mute"]'
+            );
+
+          play?.classList.remove(
+            "active"
+          );
+
+          stop?.classList.add(
+            "active"
+          );
+
+          mute?.classList.remove(
+            "is-muted"
+          );
+
+          if (mute) {
+            mute.textContent =
+              "MUTE";
+          }
+        }
+      );
+
+    conductorPlay?.classList.remove(
+      "active"
+    );
+
+    conductorStop.classList.add(
+      "active"
+    );
 
     clearTrace(true);
-
-    traceResetting = false;
-
-    stopFacts();
-
-    bachCover?.classList.remove(
-      "is-hidden"
-    );
-
-    playButton?.classList.remove(
-      "active"
-    );
-
-    stopButton.classList.add(
-      "active"
-    );
   }
 );
 
-muteButton?.addEventListener(
+
+conductorMute?.addEventListener(
   "click",
   () => {
-    muted = !muted;
+    masterMuted =
+      !masterMuted;
 
-    master.mute = muted;
+    master.mute =
+      masterMuted;
 
-    muteButton.classList.toggle(
+    conductorMute.classList.toggle(
       "active",
-      muted
+      masterMuted
     );
 
-    muteButton.textContent =
-      muted
+    conductorMute.textContent =
+      masterMuted
         ? "UNMUTE"
         : "MUTE";
   }
@@ -560,6 +987,7 @@ const panels =
     ".voice-panel"
   );
 
+
 function setupVoicePanel(
   panel,
   voice
@@ -568,6 +996,7 @@ function setupVoicePanel(
     panel.querySelectorAll(
       ".wave-buttons button"
     );
+
 
   waveButtons.forEach(
     (button) => {
@@ -600,6 +1029,7 @@ function setupVoicePanel(
       );
     }
   );
+
 
   panel
     .querySelectorAll(
@@ -636,7 +1066,8 @@ function setupVoicePanel(
               name,
               Number(
                 slider.value
-              ) / 100,
+              ) /
+                100,
               voice
             );
           }
@@ -644,10 +1075,12 @@ function setupVoicePanel(
       }
     );
 
+
   const effectButtons =
     panel.querySelectorAll(
       ".effects-grid button"
     );
+
 
   effectButtons.forEach(
     (button) => {
@@ -671,57 +1104,66 @@ function setupVoicePanel(
             "active"
           );
 
-          const rows =
-            panel.querySelectorAll(
+          panel
+            .querySelectorAll(
               ".control-row"
+            )
+            .forEach(
+              (row) => {
+                const name =
+                  row
+                    .querySelector(
+                      "span"
+                    )
+                    ?.textContent
+                    .trim()
+                    .toLowerCase();
+
+                if (
+                  name !==
+                  "amount"
+                ) {
+                  return;
+                }
+
+                const slider =
+                  row.querySelector(
+                    "input"
+                  );
+
+                if (!slider) {
+                  return;
+                }
+
+                updateEffectAmount(
+                  voice,
+                  Number(
+                    slider.value
+                  ) /
+                    100
+                );
+              }
             );
-
-          for (
-            const row of rows
-          ) {
-            const label =
-              row.querySelector(
-                "span"
-              );
-
-            if (
-              label?.textContent
-                .trim()
-                .toLowerCase() !==
-              "amount"
-            ) {
-              continue;
-            }
-
-            const slider =
-              row.querySelector(
-                "input"
-              );
-
-            if (slider) {
-              updateEffectAmount(
-                voice,
-                Number(
-                  slider.value
-                ) / 100
-              );
-            }
-          }
         }
       );
     }
   );
 }
 
-setupVoicePanel(
-  panels[0],
-  cantus
-);
 
-setupVoicePanel(
-  panels[1],
-  counterpoint
-);
+if (panels[0]) {
+  setupVoicePanel(
+    panels[0],
+    cantus
+  );
+}
+
+if (panels[1]) {
+  setupVoicePanel(
+    panels[1],
+    counterpoint
+  );
+}
 
 
 /* PARAMETERS */
@@ -742,6 +1184,7 @@ function updateParameter(
       });
       break;
 
+
     case "decay":
       voice.synth.set({
         envelope: {
@@ -752,6 +1195,7 @@ function updateParameter(
       });
       break;
 
+
     case "sustain":
       voice.synth.set({
         envelope: {
@@ -759,6 +1203,7 @@ function updateParameter(
         },
       });
       break;
+
 
     case "release":
       voice.synth.set({
@@ -769,6 +1214,7 @@ function updateParameter(
         },
       });
       break;
+
 
     case "frequency":
       voice.filter.frequency
@@ -782,6 +1228,7 @@ function updateParameter(
         );
       break;
 
+
     case "resonance":
       voice.filter.Q.rampTo(
         0.5 +
@@ -790,12 +1237,14 @@ function updateParameter(
       );
       break;
 
+
     case "amount":
       updateEffectAmount(
         voice,
         value
       );
       break;
+
 
     case "volume":
       voice.channel.volume
@@ -806,6 +1255,7 @@ function updateParameter(
         );
       break;
 
+
     case "pan":
       voice.channel.pan
         .rampTo(
@@ -815,6 +1265,7 @@ function updateParameter(
       break;
   }
 }
+
 
 function updateEffectAmount(
   voice,
@@ -890,17 +1341,26 @@ document
           const value =
             Number(
               slider.value
-            ) / 100;
+            ) /
+            100;
+
 
           if (
             name ===
             "tempo"
           ) {
-            transport.setTempo(
+            const bpm =
               50 +
-                value * 100
+              value * 100;
+
+            transport.setTempo(
+              bpm
             );
+
+            visualTempo =
+              bpm;
           }
+
 
           if (
             name ===
@@ -931,6 +1391,7 @@ document
                 0.1
               );
           }
+
 
           if (
             name ===

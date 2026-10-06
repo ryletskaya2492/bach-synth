@@ -3,51 +3,56 @@
 
 <head>
     <meta charset="UTF-8" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Иоганн Себастьян Бах</title>
 
-    <link rel="stylesheet" href="/src/styles/main.css" />
     <link rel="icon" type="image/svg+xml" href="/icons/fav.svg" />
+
+    <link rel="stylesheet" href="/src/styles/main.css" />
 </head>
 
 <body>
 
     <main class="app">
 
-        <!-- HEADER -->
-
-        <header class="header">
-        
-            <h1 class="logo">
-                Иоганн Себастьян Бах
-            </h1>
-        
-            <p class="header-description">
-                Веб-синтезатор, посвящённый полифонии Иоганна
-                Себастьяна Баха. Два голоса звучат независимо<br>
-                и образуют единое музыкальное движение.
-            </p>
-        
-        </header>
-
-
         <!-- CANTUS -->
 
         <section class="voice-panel voice-panel-left" data-voice="cantus">
+
+            <div class="voice-top">
+
+                <h2 class="voice-title">
+                    Cantus
+                </h2>
+
+                <div class="voice-transport" data-transport="cantus">
+                    <button data-action="play">
+                        PLAY
+                    </button>
+
+                    <button data-action="stop">
+                        STOP
+                    </button>
+
+                    <button data-action="mute">
+                        MUTE
+                    </button>
+                </div>
+
+            </div>
+
             <img class="panel-shape" src="/icons/left_right.svg" alt="" />
 
             <div class="panel-content">
-
-                <h2 class="panel-title">
-                    Cantus
-                </h2>
 
                 <div class="wave-buttons">
                     <button class="active">SINE</button>
                     <button>SQUARE</button>
                     <button>TRIANGLE</button>
                 </div>
+
 
                 <div class="controls-block envelope">
 
@@ -77,6 +82,7 @@
 
                 </div>
 
+
                 <div class="controls-block filter">
 
                     <div class="control-row">
@@ -92,6 +98,7 @@
                     </div>
 
                 </div>
+
 
                 <div class="controls-block effects">
 
@@ -123,52 +130,59 @@
                 </div>
 
             </div>
+
         </section>
 
 
         <!-- CENTER -->
 
+        <!-- CENTER -->
+        
         <section class="center-panel">
-
-            <img class="panel-shape" src="/icons/centre.svg" alt="" />
-
-            <div class="center-content" id="bach-scroll">
-
-                <div class="bach-cover" id="bachCover">
-                    <img src="/icons/bach.png" alt="Иоганн Себастьян Бах" />
-                </div>
-
-                <div class="fact-stage">
-
-                    <div class="fact-card" id="factCard">
-                        <div class="fact-index" id="factIndex"></div>
-
-                        <p class="fact-text" id="factText"></p>
-                    </div>
-
-                </div>
-
-            </div>
-
+        
+            <div class="circle-field" id="circleField"></div>
+        
+            <img class="panel-shape center-shape" src="/icons/centre.svg" alt="" />
+        
         </section>
 
 
         <!-- COUNTERPOINT -->
 
         <section class="voice-panel voice-panel-right" data-voice="counterpoint">
+
+            <div class="voice-top">
+
+                <h2 class="voice-title">
+                    Counterpoint
+                </h2>
+
+                <div class="voice-transport" data-transport="counterpoint">
+                    <button data-action="play">
+                        PLAY
+                    </button>
+
+                    <button data-action="stop">
+                        STOP
+                    </button>
+
+                    <button data-action="mute">
+                        MUTE
+                    </button>
+                </div>
+
+            </div>
+
             <img class="panel-shape" src="/icons/left_right.svg" alt="" />
 
             <div class="panel-content">
-
-                <h2 class="panel-title">
-                    Counterpoint
-                </h2>
 
                 <div class="wave-buttons">
                     <button>SINE</button>
                     <button>SQUARE</button>
                     <button class="active">TRIANGLE</button>
                 </div>
+
 
                 <div class="controls-block envelope">
 
@@ -198,6 +212,7 @@
 
                 </div>
 
+
                 <div class="controls-block filter">
 
                     <div class="control-row">
@@ -213,6 +228,7 @@
                     </div>
 
                 </div>
+
 
                 <div class="controls-block effects">
 
@@ -244,6 +260,7 @@
                 </div>
 
             </div>
+
         </section>
 
 
@@ -252,6 +269,7 @@
         <section class="bottom-panel">
 
             <img class="panel-shape" src="/icons/bot.svg" alt="" />
+
 
             <div class="conductor">
 
@@ -267,12 +285,13 @@
 
             </div>
 
+
             <div class="master-controls">
 
                 <div class="master-row">
                     <span>TEMPO</span>
 
-                    <input class="slider slider-note-2" type="range" min="0" max="100" value="30" />
+                    <input class="slider slider-note-2" type="range" min="0" max="100" value="32" />
                 </div>
 
                 <div class="master-row">
@@ -288,6 +307,7 @@
                 </div>
 
             </div>
+
 
             <div class="trace">
 
@@ -316,6 +336,7 @@
         </section>
 
     </main>
+
 
     <script type="module" src="/src/main.js"></script>
 

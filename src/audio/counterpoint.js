@@ -1,53 +1,73 @@
 import * as Tone from "tone";
 
+
+/* COUNTERPOINT */
+
 export function createCounterpoint() {
-  const synth = new Tone.PolySynth(Tone.Synth, {
-    oscillator: {
-      type: "triangle",
-    },
+  const synth =
+    new Tone.PolySynth(
+      Tone.Synth,
+      {
+        oscillator: {
+          type: "triangle",
+        },
 
-    envelope: {
-      attack: 0.35,
-      decay: 0.4,
-      sustain: 0.45,
-      release: 1.8,
-    },
-  });
+        envelope: {
+          attack: 0.35,
+          decay: 0.4,
+          sustain: 0.45,
+          release: 1.8,
+        },
+      }
+    );
 
-  const filter = new Tone.Filter({
-    frequency: 1900,
-    type: "lowpass",
-    Q: 1,
-  });
 
-  const distortion = new Tone.Distortion({
-    distortion: 0.1,
-    wet: 0,
-  });
+  const filter =
+    new Tone.Filter({
+      frequency: 1900,
+      type: "lowpass",
+      Q: 1,
+    });
 
-  const chorus = new Tone.Chorus({
-    frequency: 1.5,
-    delayTime: 3,
-    depth: 0.3,
-    wet: 0.12,
-  }).start();
 
-  const delay = new Tone.PingPongDelay({
-    delayTime: "8n.",
-    feedback: 0.18,
-    wet: 0,
-  });
+  const distortion =
+    new Tone.Distortion({
+      distortion: 0.1,
+      wet: 0,
+    });
 
-  const reverb = new Tone.Reverb({
-    decay: 4.5,
-    preDelay: 0.025,
-    wet: 0.18,
-  });
 
-  const channel = new Tone.Channel({
-    volume: -10,
-    pan: 0.22,
-  });
+  const chorus =
+    new Tone.Chorus({
+      frequency: 1.5,
+      delayTime: 3,
+      depth: 0.3,
+      wet: 0.12,
+    }).start();
+
+
+  const delay =
+    new Tone.PingPongDelay({
+      delayTime: "8n.",
+      feedback: 0.18,
+      wet: 0,
+    });
+
+
+  const reverb =
+    new Tone.Reverb({
+      decay: 4.5,
+      preDelay: 0.025,
+      wet: 0.18,
+    });
+
+
+  const channel =
+    new Tone.Channel({
+      volume: -10,
+      pan: 0.22,
+    });
+
 
   synth.chain(
     filter,
@@ -58,6 +78,7 @@ export function createCounterpoint() {
     channel
   );
 
+
   return {
     synth,
     filter,
@@ -66,7 +87,7 @@ export function createCounterpoint() {
     delay,
     reverb,
     channel,
-
-    selectedEffect: "chorus",
+    selectedEffect:
+      "chorus",
   };
 }
