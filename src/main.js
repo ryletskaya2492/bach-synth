@@ -22,9 +22,15 @@ const counterpoint =
   createCounterpoint();
 
 const master =
-  new Tone.Volume(-5)
+  new Tone.Volume(0);
+
+const limiter =
+  new Tone.Limiter(-1)
     .toDestination();
 
+master.connect(
+  limiter
+);
 cantus.channel.connect(master);
 counterpoint.channel.connect(master);
 
@@ -991,14 +997,13 @@ function updateParameter(
 
 
     case "volume":
-      voice.channel.volume
+    voice.channel.volume
         .rampTo(
-          -30 +
-            value * 30,
-          0.1
+        -12 +
+            value * 15,
+        0.1
         );
-      break;
-
+    break;
 
     case "pan":
       voice.channel.pan

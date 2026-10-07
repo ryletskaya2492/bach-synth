@@ -13,10 +13,10 @@ export function createCounterpoint() {
         },
 
         envelope: {
-          attack: 0.18,
-          decay: 0.4,
-          sustain: 0.45,
-          release: 1.8,
+          attack: 0.05,
+          decay: 0.5,
+          sustain: 0.55,
+          release: 1.7,
         },
       }
     );
@@ -26,43 +26,43 @@ export function createCounterpoint() {
 
   const filter =
     new Tone.Filter({
-      frequency: 1900,
+      frequency: 3400,
       type: "lowpass",
-      Q: 1,
+      Q: 0.7,
     });
 
   const distortion =
     new Tone.Distortion({
-      distortion: 0.1,
+      distortion: 0.06,
       wet: 0,
     });
 
   const chorus =
     new Tone.Chorus({
-      frequency: 1.5,
+      frequency: 1.3,
       delayTime: 3,
-      depth: 0.3,
+      depth: 0.24,
       wet: 0.12,
     }).start();
 
   const delay =
     new Tone.PingPongDelay({
       delayTime: "8n.",
-      feedback: 0.18,
-      wet: 0,
+      feedback: 0.13,
+      wet: 0.06,
     });
 
   const reverb =
     new Tone.Reverb({
-      decay: 4.5,
-      preDelay: 0.025,
-      wet: 0.18,
+      decay: 3.5,
+      preDelay: 0.02,
+      wet: 0.22,
     });
 
   const channel =
     new Tone.Channel({
-      volume: -10,
-      pan: 0.22,
+      volume: -2,
+      pan: 0.18,
     });
 
   synth.chain(
