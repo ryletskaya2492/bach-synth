@@ -29,6 +29,7 @@ cantus.channel.connect(master);
 counterpoint.channel.connect(master);
 
 let masterMuted = false;
+let isPlaying = false;
 
 
 /* ELEMENTS */
@@ -43,19 +44,19 @@ const circleField =
     "#circleField"
   );
 
-const conductorButtons =
+const transportButtons =
   document.querySelectorAll(
     ".transport button"
   );
 
-const conductorPlay =
-  conductorButtons[0];
+const playButton =
+  transportButtons[0];
 
-const conductorStop =
-  conductorButtons[1];
+const stopButton =
+  transportButtons[1];
 
-const conductorMute =
-  conductorButtons[2];
+const muteButton =
+  transportButtons[2];
 
 
 /* CENTER VISUAL */
@@ -156,18 +157,13 @@ function durationEnergy(
     case "4n":
       return 0.9;
 
-    case "2n":
-      return 0.6;
-
     default:
       return 1;
   }
 }
 
 
-function noteHeight(
-  note
-) {
+function noteHeight(note) {
   const midi =
     Tone.Frequency(
       note
@@ -208,12 +204,6 @@ function reactToNote({
   note,
   duration,
 }) {
-  if (
-    !visualCircles.length
-  ) {
-    return;
-  }
-
   const tempoEnergy =
     Math.pow(
       visualTempo / 82,
@@ -264,13 +254,15 @@ function reactToNote({
 
     const vertical =
       (
-        0.5 - pitch
+        0.5 -
+        pitch
       ) *
       2.2 *
       energy;
 
     if (
-      voice === "cantus"
+      voice ===
+      "cantus"
     ) {
       circle.vx +=
         horizontal;
@@ -334,7 +326,9 @@ function animateCircles() {
         ) *
         0.045;
 
-      if (visualPlaying) {
+      if (
+        visualPlaying
+      ) {
         circle.vx +=
           driftX *
           tempoFactor;
@@ -342,14 +336,6 @@ function animateCircles() {
         circle.vy +=
           driftY *
           tempoFactor;
-      } else {
-        circle.vx +=
-          driftX *
-          0.15;
-
-        circle.vy +=
-          driftY *
-          0.15;
       }
 
       circle.vx *=
@@ -566,6 +552,7 @@ function addTraceNote(
 ) {
   if (
     !traceLiveLayer ||
+    !isPlaying ||
     traceResetting
   ) {
     return;
@@ -581,7 +568,8 @@ function addTraceNote(
 
     setTimeout(
       () => {
-        traceResetting = false;
+        traceResetting =
+          false;
 
         addTraceNote(
           noteName
@@ -605,7 +593,8 @@ function addTraceNote(
     traceLiveLayer
       .clientWidth;
 
-  const startX = 34;
+  const startX =
+    34;
 
   const endX =
     Math.max(
@@ -638,7 +627,8 @@ function addTraceNote(
   element.src =
     glyph;
 
-  element.alt = "";
+  element.alt =
+    "";
 
   element.style.left =
     `${x}px`;
@@ -703,262 +693,61 @@ const transport =
   );
 
 
-/* VOICE TRANSPORT */
-
-document
-  .querySelectorAll(
-    ".voice-transport"
-  )
-  .forEach(
-    (controls) => {
-      const voiceName =
-        controls.dataset.transport;
-
-      const playButton =
-        controls.querySelector(
-          '[data-action="play"]'
-        );
-
-      const stopButton =
-        controls.querySelector(
-          '[data-action="stop"]'
-        );
-
-      const muteButton =
-        controls.querySelector(
-          '[data-action="mute"]'
-        );
-
-
-      playButton?.addEventListener(
-        "click",
-        async () => {
-          await Tone.start();
-
-          transport.playVoice(
-            voiceName
-          );
-
-          visualPlaying = true;
-
-          playButton.classList.add(
-            "active"
-          );
-
-          stopButton?.classList.remove(
-            "active"
-          );
-
-          muteButton?.classList.remove(
-            "is-muted"
-          );
-
-          if (muteButton) {
-            muteButton.textContent =
-              "MUTE";
-          }
-        }
-      );
-
-
-      stopButton?.addEventListener(
-        "click",
-        () => {
-          transport.stopVoice(
-            voiceName
-          );
-
-          visualPlaying =
-            transport.anyPlaying();
-
-          playButton?.classList.remove(
-            "active"
-          );
-
-          stopButton.classList.add(
-            "active"
-          );
-
-          muteButton?.classList.remove(
-            "is-muted"
-          );
-
-          if (muteButton) {
-            muteButton.textContent =
-              "MUTE";
-          }
-
-          if (
-            voiceName ===
-            "cantus"
-          ) {
-            clearTrace(
-              true
-            );
-          }
-        }
-      );
-
-
-      muteButton?.addEventListener(
-        "click",
-        () => {
-          if (
-            !transport.isVoicePlaying(
-              voiceName
-            )
-          ) {
-            return;
-          }
-
-          const muted =
-            !transport.isVoiceMuted(
-              voiceName
-            );
-
-          transport.muteVoice(
-            voiceName,
-            muted
-          );
-
-          muteButton.classList.toggle(
-            "is-muted",
-            muted
-          );
-
-          muteButton.textContent =
-            muted
-              ? "UNMUTE"
-              : "MUTE";
-        }
-      );
-    }
-  );
-
-
 /* CONDUCTOR */
 
-conductorPlay?.addEventListener(
+playButton?.addEventListener(
   "click",
   async () => {
     await Tone.start();
 
-    transport.playAll();
+    if (isPlaying) {
+      return;
+    }
 
+    isPlaying = true;
     visualPlaying = true;
 
-    document
-      .querySelectorAll(
-        ".voice-transport"
-      )
-      .forEach(
-        (controls) => {
-          const play =
-            controls.querySelector(
-              '[data-action="play"]'
-            );
-
-          const stop =
-            controls.querySelector(
-              '[data-action="stop"]'
-            );
-
-          const mute =
-            controls.querySelector(
-              '[data-action="mute"]'
-            );
-
-          play?.classList.add(
-            "active"
-          );
-
-          stop?.classList.remove(
-            "active"
-          );
-
-          mute?.classList.remove(
-            "is-muted"
-          );
-
-          if (mute) {
-            mute.textContent =
-              "MUTE";
-          }
-        }
-      );
-
-    conductorPlay.classList.add(
-      "active"
-    );
-
-    conductorStop?.classList.remove(
-      "active"
-    );
-  }
-);
-
-
-conductorStop?.addEventListener(
-  "click",
-  () => {
-    transport.stopAll();
-
-    visualPlaying = false;
-
-    document
-      .querySelectorAll(
-        ".voice-transport"
-      )
-      .forEach(
-        (controls) => {
-          const play =
-            controls.querySelector(
-              '[data-action="play"]'
-            );
-
-          const stop =
-            controls.querySelector(
-              '[data-action="stop"]'
-            );
-
-          const mute =
-            controls.querySelector(
-              '[data-action="mute"]'
-            );
-
-          play?.classList.remove(
-            "active"
-          );
-
-          stop?.classList.add(
-            "active"
-          );
-
-          mute?.classList.remove(
-            "is-muted"
-          );
-
-          if (mute) {
-            mute.textContent =
-              "MUTE";
-          }
-        }
-      );
-
-    conductorPlay?.classList.remove(
-      "active"
-    );
-
-    conductorStop.classList.add(
-      "active"
-    );
+    transport.start();
 
     clearTrace(true);
+
+    playButton.classList.add(
+      "active"
+    );
+
+    stopButton?.classList.remove(
+      "active"
+    );
   }
 );
 
 
-conductorMute?.addEventListener(
+stopButton?.addEventListener(
+  "click",
+  () => {
+    if (!isPlaying) {
+      return;
+    }
+
+    isPlaying = false;
+    visualPlaying = false;
+
+    transport.stop();
+
+    clearTrace(true);
+
+    playButton?.classList.remove(
+      "active"
+    );
+
+    stopButton.classList.add(
+      "active"
+    );
+  }
+);
+
+
+muteButton?.addEventListener(
   "click",
   () => {
     masterMuted =
@@ -967,12 +756,12 @@ conductorMute?.addEventListener(
     master.mute =
       masterMuted;
 
-    conductorMute.classList.toggle(
+    muteButton.classList.toggle(
       "active",
       masterMuted
     );
 
-    conductorMute.textContent =
+    muteButton.textContent =
       masterMuted
         ? "UNMUTE"
         : "MUTE";
@@ -996,7 +785,6 @@ function setupVoicePanel(
     panel.querySelectorAll(
       ".wave-buttons button"
     );
-
 
   waveButtons.forEach(
     (button) => {
@@ -1081,7 +869,6 @@ function setupVoicePanel(
       ".effects-grid button"
     );
 
-
   effectButtons.forEach(
     (button) => {
       button.addEventListener(
@@ -1103,47 +890,6 @@ function setupVoicePanel(
           button.classList.add(
             "active"
           );
-
-          panel
-            .querySelectorAll(
-              ".control-row"
-            )
-            .forEach(
-              (row) => {
-                const name =
-                  row
-                    .querySelector(
-                      "span"
-                    )
-                    ?.textContent
-                    .trim()
-                    .toLowerCase();
-
-                if (
-                  name !==
-                  "amount"
-                ) {
-                  return;
-                }
-
-                const slider =
-                  row.querySelector(
-                    "input"
-                  );
-
-                if (!slider) {
-                  return;
-                }
-
-                updateEffectAmount(
-                  voice,
-                  Number(
-                    slider.value
-                  ) /
-                    100
-                );
-              }
-            );
         }
       );
     }
@@ -1175,13 +921,10 @@ function updateParameter(
 ) {
   switch (name) {
     case "attack":
-      voice.synth.set({
-        envelope: {
-          attack:
-            0.01 +
-            value * 3,
-        },
-      });
+      voice.gain.gain.rampTo(
+        value,
+        0.08
+      );
       break;
 
 
@@ -1199,7 +942,8 @@ function updateParameter(
     case "sustain":
       voice.synth.set({
         envelope: {
-          sustain: value,
+          sustain:
+            value,
         },
       });
       break;

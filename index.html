@@ -6,7 +6,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Иоганн Себастьян Бах</title>
+    <title>Classical Synth</title>
 
     <link rel="icon" type="image/svg+xml" href="/icons/fav.svg" />
 
@@ -21,27 +21,9 @@
 
         <section class="voice-panel voice-panel-left" data-voice="cantus">
 
-            <div class="voice-top">
-
-                <h2 class="voice-title">
-                    Cantus
-                </h2>
-
-                <div class="voice-transport" data-transport="cantus">
-                    <button data-action="play">
-                        PLAY
-                    </button>
-
-                    <button data-action="stop">
-                        STOP
-                    </button>
-
-                    <button data-action="mute">
-                        MUTE
-                    </button>
-                </div>
-
-            </div>
+            <h2 class="voice-title">
+                Cantus
+            </h2>
 
             <img class="panel-shape" src="/icons/left_right.svg" alt="" />
 
@@ -59,7 +41,7 @@
                     <div class="control-row">
                         <span>ATTACK</span>
 
-                        <input class="slider slider-clef" type="range" min="0" max="100" value="20" />
+                        <input class="slider slider-clef" type="range" min="0" max="100" value="0" />
                     </div>
 
                     <div class="control-row">
@@ -136,14 +118,12 @@
 
         <!-- CENTER -->
 
-        <!-- CENTER -->
-        
         <section class="center-panel">
-        
+
             <div class="circle-field" id="circleField"></div>
-        
+
             <img class="panel-shape center-shape" src="/icons/centre.svg" alt="" />
-        
+
         </section>
 
 
@@ -151,27 +131,9 @@
 
         <section class="voice-panel voice-panel-right" data-voice="counterpoint">
 
-            <div class="voice-top">
-
-                <h2 class="voice-title">
-                    Counterpoint
-                </h2>
-
-                <div class="voice-transport" data-transport="counterpoint">
-                    <button data-action="play">
-                        PLAY
-                    </button>
-
-                    <button data-action="stop">
-                        STOP
-                    </button>
-
-                    <button data-action="mute">
-                        MUTE
-                    </button>
-                </div>
-
-            </div>
+            <h2 class="voice-title">
+                Counterpoint
+            </h2>
 
             <img class="panel-shape" src="/icons/left_right.svg" alt="" />
 
@@ -189,7 +151,7 @@
                     <div class="control-row">
                         <span>ATTACK</span>
 
-                        <input class="slider slider-clef" type="range" min="0" max="100" value="12" />
+                        <input class="slider slider-clef" type="range" min="0" max="100" value="0" />
                     </div>
 
                     <div class="control-row">
@@ -336,7 +298,6 @@
         </section>
 
     </main>
-
 
     <script type="module" src="/src/main.js"></script>
 

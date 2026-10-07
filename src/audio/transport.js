@@ -71,7 +71,6 @@ function noteLetter(note) {
   );
 }
 
-
 function weightedChoice(items) {
   const total =
     items.reduce(
@@ -96,7 +95,6 @@ function weightedChoice(items) {
   ];
 }
 
-
 function distance(
   range,
   a,
@@ -108,26 +106,20 @@ function distance(
   );
 }
 
-
 function midi(note) {
   return Tone.Frequency(
     note
   ).toMidi();
 }
 
-
-function isConsonant(
+function consonant(
   noteA,
   noteB
 ) {
-  if (!noteA || !noteB) {
-    return true;
-  }
-
   const interval =
     Math.abs(
       midi(noteA) -
-        midi(noteB)
+      midi(noteB)
     ) % 12;
 
   return [
@@ -140,119 +132,59 @@ function isConsonant(
   ].includes(interval);
 }
 
-
-function chooseDuration() {
-  return weightedChoice(
-    durations
-  );
-}
-
-
 function buildCandidates(
   range,
   harmony,
   previousNote
 ) {
-  const candidates =
-    range
-      .filter(
-        (note) =>
+  return range
+    .filter(
+      (note) =>
+        distance(
+          range,
+          previousNote,
+          note
+        ) <= 3
+    )
+    .map(
+      (note) => {
+        const movement =
           distance(
             range,
             previousNote,
             note
-          ) <= 3
-      )
-      .map(
-        (note) => {
-          const movement =
-            distance(
-              range,
-              previousNote,
-              note
-            );
+          );
 
-          let weight = 1;
+        let weight = 1;
 
-          if (
-            harmony.includes(
-              noteLetter(note)
-            )
-          ) {
-            weight += 5;
-          }
-
-          if (movement === 1) {
-            weight += 5;
-          }
-
-          if (movement === 2) {
-            weight += 2;
-          }
-
-          if (
-            note ===
-            previousNote
-          ) {
-            weight *= 0.25;
-          }
-
-          return {
-            note,
-            weight,
-          };
+        if (
+          harmony.includes(
+            noteLetter(note)
+          )
+        ) {
+          weight += 5;
         }
-      );
 
-  return candidates;
-}
+        if (movement === 1) {
+          weight += 5;
+        }
 
+        if (movement === 2) {
+          weight += 2;
+        }
 
-function chooseMelodicNote(
-  range,
-  harmony,
-  previousNote
-) {
-  return weightedChoice(
-    buildCandidates(
-      range,
-      harmony,
-      previousNote
-    )
-  ).note;
-}
+        if (
+          note === previousNote
+        ) {
+          weight *= 0.25;
+        }
 
-
-function chooseCounterNote(
-  range,
-  harmony,
-  previousNote,
-  cantusNote
-) {
-  const base =
-    buildCandidates(
-      range,
-      harmony,
-      previousNote
+        return {
+          note,
+          weight,
+        };
+      }
     );
-
-  const consonant =
-    base.filter(
-      (item) =>
-        isConsonant(
-          item.note,
-          cantusNote
-        )
-    );
-
-  const pool =
-    consonant.length
-      ? consonant
-      : base;
-
-  return weightedChoice(
-    pool
-  ).note;
 }
 
 
@@ -267,50 +199,69 @@ export function createTransport(
   const transport =
     Tone.getTransport();
 
-  transport.bpm.value = 76;
-
-  const voices = {
-    cantus: {
-      synth: cantus.synth,
-      range: cantusRange,
-      playing: false,
-      muted: false,
-      previousNote: "E4",
-      currentNote: null,
-      remaining: 0,
-      velocity: 0.52,
-    },
-
-    counterpoint: {
-      synth: counterpoint.synth,
-      range: counterRange,
-      playing: false,
-      muted: false,
-      previousNote: "C3",
-      currentNote: null,
-      remaining: 0,
-      velocity: 0.42,
-    },
-  };
+  transport.bpm.value = 82;
 
   let running = false;
   let tick = 0;
   let harmonyIndex = 0;
 
+  const voices = {
+    cantus: {
+      synth: cantus.synth,
+      range: cantusRange,
+      previousNote: "E4",
+      currentNote: "E4",
+      remaining: 0,
+      velocity: 0.54,
+    },
 
-  function currentHarmony() {
-    return harmonies[
-      harmonyIndex %
-        harmonies.length
-    ];
-  }
+    counterpoint: {
+      synth: counterpoint.synth,
+      range: counterRange,
+      previousNote: "C3",
+      currentNote: "C3",
+      remaining: 0,
+      velocity: 0.44,
+    },
+  };
 
 
-  function anyPlaying() {
-    return (
-      voices.cantus.playing ||
-      voices.counterpoint.playing
-    );
+  function chooseNote(
+    name,
+    harmony
+  ) {
+    const voice =
+      voices[name];
+
+    let candidates =
+      buildCandidates(
+        voice.range,
+        harmony,
+        voice.previousNote
+      );
+
+    if (
+      name ===
+      "counterpoint"
+    ) {
+      const compatible =
+        candidates.filter(
+          (item) =>
+            consonant(
+              item.note,
+              voices.cantus.currentNote
+            )
+        );
+
+      if (compatible.length) {
+        candidates =
+          compatible;
+      }
+    }
+
+    return weightedChoice(
+      candidates
+    ).note;
   }
 
 
@@ -321,11 +272,6 @@ export function createTransport(
     const voice =
       voices[name];
 
-    if (!voice.playing) {
-      voice.currentNote = null;
-      return;
-    }
-
     if (
       voice.remaining > 0
     ) {
@@ -334,32 +280,20 @@ export function createTransport(
     }
 
     const harmony =
-      currentHarmony();
+      harmonies[
+        harmonyIndex
+      ];
 
     const duration =
-      chooseDuration();
+      weightedChoice(
+        durations
+      );
 
-    let note;
-
-    if (
-      name ===
-      "cantus"
-    ) {
-      note =
-        chooseMelodicNote(
-          voice.range,
-          harmony,
-          voice.previousNote
-        );
-    } else {
-      note =
-        chooseCounterNote(
-          voice.range,
-          harmony,
-          voice.previousNote,
-          voices.cantus.currentNote
-        );
-    }
+    const note =
+      chooseNote(
+        name,
+        harmony
+      );
 
     voice.previousNote =
       note;
@@ -370,20 +304,14 @@ export function createTransport(
     voice.remaining =
       duration.ticks - 1;
 
-    if (voice.muted) {
-      return;
-    }
-
-    const velocity =
-      voice.velocity +
-      Math.random() * 0.06;
-
     voice.synth
       .triggerAttackRelease(
         note,
         duration.tone,
         time,
-        velocity
+        voice.velocity +
+          Math.random() *
+            0.06
       );
 
     Tone.getDraw().schedule(
@@ -437,158 +365,51 @@ export function createTransport(
     );
 
 
-  function startClock() {
-    if (!running) {
-      loop.start(0);
-      running = true;
-    }
-
-    if (
-      transport.state !==
-      "started"
-    ) {
-      transport.start();
-    }
-  }
-
-
-  function stopClockIfNeeded() {
-    if (anyPlaying()) {
-      return;
-    }
-
-    transport.stop();
-    loop.stop();
-
-    running = false;
-    tick = 0;
-    harmonyIndex = 0;
-
-    voices.cantus.remaining = 0;
-    voices.counterpoint.remaining = 0;
-
-    voices.cantus.currentNote = null;
-    voices.counterpoint.currentNote = null;
-
-    voices.cantus.previousNote = "E4";
-    voices.counterpoint.previousNote = "C3";
-
-    transport.position = 0;
-  }
-
-
   return {
-    playVoice(name) {
-      const voice =
-        voices[name];
-
-      if (!voice) {
+    start() {
+      if (running) {
         return;
       }
 
-      voice.playing = true;
-      voice.muted = false;
+      running = true;
 
-      startClock();
+      loop.start(0);
+      transport.start();
     },
 
-
-    stopVoice(name) {
-      const voice =
-        voices[name];
-
-      if (!voice) {
+    stop() {
+      if (!running) {
         return;
       }
 
-      voice.playing = false;
-      voice.muted = false;
-      voice.remaining = 0;
-      voice.currentNote = null;
+      running = false;
 
-      voice.synth.releaseAll();
-
-      stopClockIfNeeded();
-    },
-
-
-    muteVoice(
-      name,
-      muted
-    ) {
-      const voice =
-        voices[name];
-
-      if (!voice) {
-        return;
-      }
-
-      voice.muted =
-        muted;
-
-      if (muted) {
-        voice.synth.releaseAll();
-      }
-    },
-
-
-    playAll() {
-      voices.cantus.playing =
-        true;
-
-      voices.counterpoint.playing =
-        true;
-
-      voices.cantus.muted =
-        false;
-
-      voices.counterpoint.muted =
-        false;
-
-      startClock();
-    },
-
-
-    stopAll() {
-      voices.cantus.playing =
-        false;
-
-      voices.counterpoint.playing =
-        false;
-
-      voices.cantus.muted =
-        false;
-
-      voices.counterpoint.muted =
-        false;
+      transport.stop();
+      loop.stop();
 
       cantus.synth.releaseAll();
       counterpoint.synth.releaseAll();
 
-      stopClockIfNeeded();
+      tick = 0;
+      harmonyIndex = 0;
+
+      voices.cantus.remaining = 0;
+      voices.counterpoint.remaining = 0;
+
+      voices.cantus.previousNote =
+        "E4";
+
+      voices.counterpoint.previousNote =
+        "C3";
+
+      voices.cantus.currentNote =
+        "E4";
+
+      voices.counterpoint.currentNote =
+        "C3";
+
+      transport.position = 0;
     },
-
-
-    isVoicePlaying(name) {
-      return (
-        voices[name]?.playing ??
-        false
-      );
-    },
-
-
-    isVoiceMuted(name) {
-      return (
-        voices[name]?.muted ??
-        false
-      );
-    },
-
-
-    anyPlaying() {
-      return anyPlaying();
-    },
-
 
     setTempo(bpm) {
       transport.bpm.rampTo(

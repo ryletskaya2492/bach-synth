@@ -13,7 +13,7 @@ export function createCantus() {
         },
 
         envelope: {
-          attack: 0.7,
+          attack: 0.18,
           decay: 0.6,
           sustain: 0.55,
           release: 2.5,
@@ -21,6 +21,8 @@ export function createCantus() {
       }
     );
 
+  const gain =
+    new Tone.Gain(0);
 
   const filter =
     new Tone.Filter({
@@ -29,13 +31,11 @@ export function createCantus() {
       Q: 1.2,
     });
 
-
   const distortion =
     new Tone.Distortion({
       distortion: 0.15,
       wet: 0,
     });
-
 
   const chorus =
     new Tone.Chorus({
@@ -45,14 +45,12 @@ export function createCantus() {
       wet: 0,
     }).start();
 
-
   const delay =
     new Tone.PingPongDelay({
       delayTime: "8n",
       feedback: 0.2,
       wet: 0,
     });
-
 
   const reverb =
     new Tone.Reverb({
@@ -61,15 +59,14 @@ export function createCantus() {
       wet: 0.22,
     });
 
-
   const channel =
     new Tone.Channel({
       volume: -8,
       pan: -0.22,
     });
 
-
   synth.chain(
+    gain,
     filter,
     distortion,
     chorus,
@@ -78,9 +75,9 @@ export function createCantus() {
     channel
   );
 
-
   return {
     synth,
+    gain,
     filter,
     distortion,
     chorus,

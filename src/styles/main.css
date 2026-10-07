@@ -53,11 +53,14 @@ input {
 
 .app {
     position: relative;
+    top: -22px;
+
     width: 1440px;
     height: 810px;
     flex: 0 0 auto;
     overflow: hidden;
     background: var(--bg);
+
     transform: scale(0.92);
     transform-origin: center;
 }
@@ -116,6 +119,8 @@ input {
 }
 
 .voice-title {
+    position: relative;
+    top: -25px;
     margin: 0 0 11px 14px;
     font-family: var(--mak);
     font-size: 22px;
